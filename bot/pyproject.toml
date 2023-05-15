@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "bot"
+version = "0.1.0"
+description = ""
+authors = ["Nazar <nazik110@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+aiogram = "3.0.0.b6"
+redis = "^4.5.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

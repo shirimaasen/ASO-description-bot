@@ -1,0 +1,60 @@
+version: "3.4"
+
+services:
+  backend:
+    ports:
+      - 8000:80
+    build:
+      context: ./app
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    networks:
+      - backend-tier
+    command: ["uvicorn", "app.server.app:app", "--host", "0.0.0.0", "--port", "80"]
+    env_file:
+      - backend.env
+    depends_on:
+      - mongodb
+
+  redis:
+    image: library/redis:5.0-alpine
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+    networks:
+      - bot-tier
+    volumes:
+      - ~/apps/redis:/data/redis
+
+  mongodb:
+    image: mongo:5.0
+    ports:
+      - 27017:27017
+    volumes:
+       - ~/apps/mongo:/data/db
+    networks:
+      - backend-tier
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=ClosedAI
+      - MONGO_INITDB_ROOT_PASSWORD=SJf8FNsa_sdgnae4rf54s
+
+  bot:
+    build:
+      context: ./bot
+      dockerfile: ./Dockerfile
+    command: python3 -m bot.main.py
+    restart: unless-stopped
+    networks:
+      - backend-tier
+      - bot-tier
+    env_file:
+      - bot.env
+    depends_on:
+      - backend
+      - redis
+
+networks:
+  bot-tier:
+    driver: bridge
+  backend-tier:
+    driver: bridge
